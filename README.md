@@ -8,10 +8,12 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+* python 3
+* pip
 
+Then install the required packages from the requirements file
 ```
-Give examples
+pip install -r requirements.txt
 ```
 
 ### Installing
