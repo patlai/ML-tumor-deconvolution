@@ -72,7 +72,7 @@ def runLinearRegression(sig, mix, expectedWeights):
 
 
 
-def run(sig, mixes, expected, outputPath, numMixes):
+def runNmf(sig, mixes, expected, outputPath, numMixes):
     results = np.array([runMix(sig, mix) for mix in mixes])
 
     print("reults: ", results.shape)
@@ -88,34 +88,3 @@ def run(sig, mixes, expected, outputPath, numMixes):
 
     meanAbsoluteError = mean_absolute_error(expected, results)
     print("Mean Absolute Error: %.4f" %meanAbsoluteError)
-
-
-def main(args):
-    mixFilePrefix = args[0]
-    signatureFile = args[1]
-    expectedFile = args[2]
-    outputPath = args[3]
-    numMixes = int(args[4])
-
-    mixes = []
-    for i in range(0, numMixes):
-        mix = np.array([np.genfromtxt("%s_%d.csv" %(mixFilePrefix, i+1), delimiter=',')]).T
-        mix[np.isnan(mix)] = 0
-        mix[mix < 0] = 0
-        mixes.append(mix)
-    
-    expected = np.genfromtxt(expectedFile, delimiter=',')
-    signatureMatrix = np.genfromtxt(signatureFile, delimiter=',')
-
-    print("num mixes: ", numMixes)
-    print("mix: ", mix.shape)
-    print("sig: ", signatureMatrix.shape)
-    print("expected: ", expected.shape)
-
-    signatureMatrix[np.isnan(signatureMatrix)] = 0
-
-    run(signatureMatrix, mixes, expected.T, outputPath, numMixes)
-    
-
-if __name__ == "__main__":
-    main(sys.argv[1:])

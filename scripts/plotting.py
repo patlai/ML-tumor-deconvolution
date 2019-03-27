@@ -34,7 +34,7 @@ def generatePlots(actual, expected, prefix, numMixes):
         area = 40
         title = 'Mixture ' + str(k + 1)
 
-        limit = 1#max(max(x,y))
+        limit = max(max(x,y))
 
         plt.figure(figsize=(4, 4))
         plt.plot([0, limit], [0, limit])
