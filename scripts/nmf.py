@@ -40,15 +40,17 @@ def runCustom(sig, mix):
         H=sig.T)
     
     # sum to 1 for each row
-    W = W/W.sum(axis=1, keepdims=1) 
+    W = W/W.sum(axis=1, keepdims=1)
     
     return W.T , H.T
-    
+
+
 def runMix(sig, mix):
     W, H = runCustom(sig, mix)
     # take the average of the 3 columns in the mix
     return np.mean(W, axis=1)
     
+
 def runMixes(mixes):
     results_raw = []
     results_zscore = []
@@ -62,10 +64,12 @@ def runMixes(mixes):
     
     return [results_raw, results_zscore, results_minmax]
 
+
 def runLinearRegression(sig, mix, expectedWeights):
     sig_train, sig_test, weights_train, weights_test = train_test_split(sig, expectedWeights, train_size = 0.7, test_size = 0.3) 
     model = LinearRegression().fit(sig_train, weights_train)
     model.score(sig_test, weights_test)
+
 
 
 def run(sig, mixes, expected, outputPath, numMixes):
@@ -84,6 +88,7 @@ def run(sig, mixes, expected, outputPath, numMixes):
 
     meanAbsoluteError = mean_absolute_error(expected, results)
     print("Mean Absolute Error: %.4f" %meanAbsoluteError)
+
 
 def main(args):
     mixFilePrefix = args[0]
@@ -113,6 +118,4 @@ def main(args):
     
 
 if __name__ == "__main__":
-    print(len(sys.argv))
-
     main(sys.argv[1:])
