@@ -1,6 +1,6 @@
 # Tumor deconvolution with machine learning
-
-McGill ECSE design project 1 and 2: ECSE 456, ECSE 457
+### McGill ECSE design project 1 and 2: ECSE 456, ECSE 457
+This project's goal is to analyze the bulk gene expression profile of tumor data using machine learning algorithms.
 
 ## Getting Started
 
