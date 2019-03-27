@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
+
+import sys
 
 def histogram(x, n, min = -50, max = 50):    
     fig = plt.clf()
@@ -12,6 +15,38 @@ def histogram(x, n, min = -50, max = 50):
     
     plt.xlim(min, max)
     plt.show()
+
+def multiHistogram(arraysToPlot, n, title, outputPath, labels=None):
+    """
+    generates histograms given multiple arrays to plot
+    """ 
+    fig = plt.clf()
+    fig, ax = plt.subplots(figsize=(15, 8))
+    # flatten the array in the case of multi-dimensonial arrays
+    for i in range (0, len(arraysToPlot)):
+        x = arraysToPlot[i]
+        arrayToPlot = np.array(x).flatten()
+        numBins = int(len(arrayToPlot) / n)
+        
+        dist = sns.distplot(
+            arrayToPlot,
+            kde=False,
+            rug=False,
+            bins=numBins,
+            axlabel = "values",
+            label = "mix %s" %(i+1) if labels is None else labels[i],
+        )
+
+    minimum = min([min(x) for x in arraysToPlot]) - 1
+    maximum = max([max(x) for x in arraysToPlot]) + 1
+
+    print(minimum)
+    print(maximum)
+
+    plt.xlim(minimum, maximum)
+    plt.legend()
+    plt.title(title)
+    plt.savefig(outputPath)
 
 def generatePlots(actual, expected, prefix, numMixes):
 
@@ -115,3 +150,17 @@ def getErrorTable(expected, actual, prefix):
                delimiter=",", fmt = "%10d, %1.3f, %1.3f",
                header = "Mix #,Spearman Correlation, Mean Abs. Error",
                comments = '')
+
+
+def main(args):
+    a = np.genfromtxt(args[0], delimiter=',').T
+    a[np.isnan(a)] = 0
+    arraysToPlot = a.tolist()
+    labels = np.genfromtxt(args[1], delimiter=',', dtype="U32").T.tolist()
+    title = args[2]
+    outputPath = args[3]
+
+    multiHistogram(arraysToPlot, 10, title, outputPath, labels = labels)
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
