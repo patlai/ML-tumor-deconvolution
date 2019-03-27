@@ -13,17 +13,23 @@ These instructions will get you a copy of the project up and running on your loc
 
 Then install the required packages from the requirements file
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
+```
+or
+```
+python3 -m pip install -r requirements.txt
 ```
 
-### Installing
-
-
+## Running
+To generate new data:
+```
+python3 scripts/data-generation.py [patient data file] [cell signature file] [gene mapping file] [output path]
+```
 
 ## Authors
 Patrick Lai, Yu-Yueh Liu, Keven Liu, Ben Landry
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/patlai/ML-tumor-deconvolution/contributors) who participated in this project.
 
 ## License
 
