@@ -46,6 +46,21 @@ def runCustom(sig, mix):
 
 
 def runMix(sig, mix):
+    # NMF needs all positive values
+    sig[sig < 0] = 0
+    mix[mix < 0] = 0
+    sig[np.isnan(sig)] = 0
+    mix[np.isnan(mix)] = 0
+
+    print (np.min(sig))
+    print (np.max(sig))
+
+    print (np.min(mix))
+    print (np.max(mix))
+
+    print(sig.shape)
+    print(mix.shape)
+
     W, H = runCustom(sig, mix)
     # take the average of the 3 columns in the mix
     return np.mean(W, axis=1)
@@ -72,19 +87,22 @@ def runLinearRegression(sig, mix, expectedWeights):
 
 
 
-def runNmf(sig, mixes, expected, outputPath, numMixes):
+def runNmf(sig, mixes, expected, outputPath, numMixes, outputPrefix = ""):
     results = np.array([runMix(sig, mix) for mix in mixes])
 
+    print("output prefix: ", outputPrefix)
     print("reults: ", results.shape)
-    print("expected: ", results.shape)
+    print("expected: ", expected.shape)
 
-    np.savetxt('%s/results.csv' %outputPath, np.array(results).T, delimiter=',')
+    np.savetxt('%s/results%s.csv' %(outputPath, outputPrefix), np.array(results), delimiter=',')
 
     #error = mean_absolute_error(expected, results)
     # print("error: ", error.shape)
     # np.savetxt('%s/error.csv' %outputPath, error, delimiter=',')
 
-    generatePlots(results.T, expected.T, "%s/plots" %outputPath, numMixes)
+    generatePlots(results, expected, "%s/plots" %outputPath, numMixes, outputPrefix)
 
     meanAbsoluteError = mean_absolute_error(expected, results)
     print("Mean Absolute Error: %.4f" %meanAbsoluteError)
+
+    return meanAbsoluteError

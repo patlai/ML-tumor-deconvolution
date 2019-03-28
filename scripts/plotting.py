@@ -21,7 +21,7 @@ def multiHistogram(arraysToPlot, n, title, outputPath, labels=None):
     generates histograms given multiple arrays to plot
     """ 
     fig = plt.clf()
-    fig, ax = plt.subplots(figsize=(15, 8))
+    fig, ax = plt.subplots(figsize=(8, 5))
     # flatten the array in the case of multi-dimensonial arrays
     for i in range (0, len(arraysToPlot)):
         x = arraysToPlot[i]
@@ -48,20 +48,35 @@ def multiHistogram(arraysToPlot, n, title, outputPath, labels=None):
     plt.title(title)
     plt.savefig(outputPath)
 
-def generatePlots(actual, expected, prefix, numMixes):
+def generatePlots(actual, expected, prefix, numMixes, suffix = ""):
+    """
+    Generates scatter plots for actual vs expected cell fractions
+    for each mixture and all mixtures together
+    """
 
     print("actual: ", actual.shape)
     print("expected: ", expected.shape)
 
+    # make sure the dimensions are (num mixes x cell types per mix)
+    if actual.shape[0] != numMixes:
+        actual = actual.T
+
+    if expected.shape != actual.shape:
+        expected = expected.T
+
     # SEPARATE PLOTS FOR EACH MIX
     colors = ['red', 'green', 'purple', 'orange']
+
+    # iterate through the mixtures
     for k in range(0, numMixes):
         compare = []
         print("hello world")
         print(actual.shape)
         print(expected.shape)
-        for j in range (0, actual.T[k].shape[0]):
-            compare.append((actual.T[k][j], expected.T[k][j]))
+        
+        # iterate over each cell fraction in the mixture: mixture k, cell type j
+        for j in range (0, actual[k].shape[0]):
+            compare.append((actual[k][j], expected[k][j]))
 
         # x is ground truth, y is estimate
         x = [c[1] for c in compare]
@@ -78,7 +93,7 @@ def generatePlots(actual, expected, prefix, numMixes):
         plt.xlabel('Ground truth')
         # need to call save before show or else it will export as a blank
         plt.title(prefix + ': ' + title)
-        plt.savefig(prefix + title + '_%d_components.png' % len(x))
+        plt.savefig(prefix + title + '_%d_components_%s.png' % (len(x), suffix) )
         #plt.show()
 
     # ALL MIXES TOGETHER  
@@ -117,8 +132,8 @@ def generatePlots(actual, expected, prefix, numMixes):
     plt.legend()
     plt.grid(True)
     # need to call save before show or else it will export as a blank
-    plt.title(prefix + ': ' + 'All mixes: Truth vs. Estimated')
-    plt.savefig(prefix + 'All_mixes_%d_components.png' %len(x[i]))
+    plt.title(prefix + ': ' + 'All mixes: Truth vs. Estimated ' +suffix)
+    plt.savefig(prefix + 'All_mixes_%d_components_%s.png' %(len(x[i]), suffix))
     #plt.show()
 
     print("plots saved to %s" %prefix)
