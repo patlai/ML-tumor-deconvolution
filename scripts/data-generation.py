@@ -85,6 +85,42 @@ def generate(sig, cov, covTransformed, tcgaMean, tcgaStd, numMixtures, outputPat
 def formatSf(sf):
     return str(sf).replace('.', '')
 
+def getMapping(patientDataPath, signaturePath, mappingFilePath):
+    preProcessed = getOverlappingGenes(patientDataPath, signaturePath, mappingFilePath)
+
+    patientDataMatrix = preProcessed["patientData"]
+    signatureMatrix = preProcessed["signature"]
+
+    patientDataCov = np.cov(patientDataMatrix)
+
+    return patientDataMatrix, signatureMatrix, patientDataCov
+
+
+def generateWithScaling(patientDataPath, signaturePath, mappingFilePath, outputPath, scaleFactors):
+
+    patientDataMatrix, signatureMatrix, patientDataCov = getMapping(patientDataPath, signaturePath, mappingFilePath)
+
+    errors = []
+
+    for sf in scaleFactors:
+        gen = generate(signatureMatrix, patientDataCov, None, None, None, 4, outputPath)
+
+        meanAbsError = runNmf(
+            signatureMatrix,
+            np.array([g["raw_log2"].T for g in gen]),
+            np.array([g["weights"] for g in gen]),
+            outputPath,
+            4,
+            formatSf(sf),
+        )
+
+        plotDataGeneration(gen, sf, outputPath)
+
+        errors.append([sf, meanAbsError])
+
+    saveMatrix("%s/scaling-results.csv" %outputPath, np.array(errors))
+
+
 def generateWithMapping(patientDataPath, signaturePath, mappingFilePath, outputPath, scaleFactor = 1):
     """
     Maps the genes between patient data and a signature
@@ -135,6 +171,29 @@ def generateWithMapping(patientDataPath, signaturePath, mappingFilePath, outputP
 
     return gen, signatureMatrix
 
+
+def plotDataGeneration(gen, scaleFactor, outputPath):
+    # generate histograms for the generated data
+    numMixtures = len(gen)
+    rawLabels = [("mix %d" %x) for x in range (1, numMixtures + 1)]
+    log2Labels = [("mix %d: log2(x+1) transformed" %x) for x in range (1, numMixtures + 1)]
+
+    multiHistogram([g["raw"].flatten() for g in gen],
+        10,
+        "Generated raw mixtures, scale factor = %.2f" %scaleFactor,
+        "%s/plots/data-generation-raw-sf-%s.png" %(outputPath, formatSf(scaleFactor)),
+        labels=None
+    )
+
+    multiHistogram(
+        [g["raw_log2"].flatten() for g in gen],
+        10,
+        "Generated log2(x+1) transformed mixtures, scale factor = %.2f" %scaleFactor,
+        "%s/plots/data-generation-log2-sf-%s.png" %(outputPath, formatSf(scaleFactor)),
+        labels=None
+    )
+
+
 def main(args):
     """
     args:
@@ -145,26 +204,16 @@ def main(args):
     """
     print(args)
 
+    patientDataPath = args[0]
+    signaturePath = args[1]
+    mappingFilePath = args[2]
     outputPath = args[3]
-    signatureMatrix = np.genfromtxt(args[1], delimiter = ',')
 
-    errors = []
+    # try different scaling factors on the covariance matrix to examine the effect of adding noise
+    # on the data generation
+    scaleFactors = np.arange(0.1, 1.1, 0.1)
 
-    for sf in [0.1, 0.25, 0.5, 0.75, 1]:
-        gen, sig = generateWithMapping(args[0], args[1], args[2], outputPath, sf)
-
-        meanAbsError = runNmf(
-            sig,
-            np.array([g["raw_log2"].T for g in gen]),
-            np.array([g["weights"] for g in gen]),
-            outputPath,
-            4,
-            formatSf(sf),
-        )
-
-        errors.append([sf, meanAbsError])
-
-    saveMatrix("%s/scaling-results.csv" %outputPath, np.array(errors))
+    generateWithScaling(patientDataPath, signaturePath, mappingFilePath, outputPath, scaleFactors)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
