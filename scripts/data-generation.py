@@ -85,7 +85,13 @@ def generate(sig, cov, covTransformed, tcgaMean, tcgaStd, numMixtures, outputPat
 def formatSf(sf):
     return str(sf).replace('.', '')
 
+
 def getMapping(patientDataPath, signaturePath, mappingFilePath):
+    """
+    Gets the overlapping genes between the patient data and cell signature and
+    returns both filtered matrices and the covariance of the patient data
+    """
+
     preProcessed = getOverlappingGenes(patientDataPath, signaturePath, mappingFilePath)
 
     patientDataMatrix = preProcessed["patientData"]
@@ -97,13 +103,16 @@ def getMapping(patientDataPath, signaturePath, mappingFilePath):
 
 
 def generateWithScaling(patientDataPath, signaturePath, mappingFilePath, outputPath, scaleFactors):
+    """
+    Calculates the gene overlap, covariance matrix and then generates the data
+    """
 
     patientDataMatrix, signatureMatrix, patientDataCov = getMapping(patientDataPath, signaturePath, mappingFilePath)
 
     errors = []
 
     for sf in scaleFactors:
-        gen = generate(signatureMatrix, patientDataCov, None, None, None, 4, outputPath)
+        gen = generate(signatureMatrix, sf * patientDataCov, None, None, None, 4, outputPath)
 
         meanAbsError = runNmf(
             signatureMatrix,
@@ -211,7 +220,7 @@ def main(args):
 
     # try different scaling factors on the covariance matrix to examine the effect of adding noise
     # on the data generation
-    scaleFactors = np.arange(0.1, 1.1, 0.1)
+    scaleFactors = [round(sf, 2) for sf in np.arange(0.1, 1.1, 0.1)]
 
     generateWithScaling(patientDataPath, signaturePath, mappingFilePath, outputPath, scaleFactors)
 
