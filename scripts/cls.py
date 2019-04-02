@@ -6,6 +6,9 @@ from scipy.optimize import minimize
 from plotting import generatePlots
 from sklearn.metrics import mean_absolute_error
 
+from sklearn import linear_model
+
+
 def runMix(sigMatrix, mixture):
     S = sigMatrix.T
 
@@ -21,15 +24,18 @@ def runMix(sigMatrix, mixture):
         bounds=[(0, np.inf) for i in range(S.shape[0])]
     )
 
+    reg = linear_model.LinearRegression()
+    reg.fit(mixture, )
+
     return res.x
 
-def runCls(sigMatrix, mixtures, expected, outputPath, numMixes):
+def runCls(sigMatrix, mixtures, expected, outputPath, numMixes, outputPrefix = ""):
     results = np.array([runMix(sigMatrix, mix) for mix in mixtures])
 
     print("reults: ", results.shape)
     print("expected: ", expected.shape)
 
-    np.savetxt('%s/results.csv' %outputPath, np.array(results).T, delimiter=',')
+    np.savetxt('%s/cls_results_%s.csv' %(outputPath, outputPrefix), np.array(results).T, delimiter=',')
 
     #error = mean_absolute_error(expected, results)
     # print("error: ", error.shape)
@@ -38,4 +44,4 @@ def runCls(sigMatrix, mixtures, expected, outputPath, numMixes):
     generatePlots(results.T, expected.T, "%s/plots" %outputPath, numMixes)
 
     meanAbsoluteError = mean_absolute_error(expected, results)
-    print("Mean Absolute Error: %.4f" %meanAbsoluteError)
+    print("Mean Absolute Error: %.3f" %meanAbsoluteError)

@@ -8,8 +8,9 @@ from preprocessing import getOverlappingGenes
 
 from plotting import multiHistogram
 from nmf import runNmf
+from cls import runCls
 
-def generate(sig, cov, covTransformed, tcgaMean, tcgaStd, numMixtures, outputPath):
+def generate(sig, cov, covTransformed, tcgaMean, tcgaStd, numMixtures, outputPath, scaleFactor):
     """
     generates cell mixtures data using a multivariate-normal distribution and randomly generated weights for the cell types
     .
@@ -27,6 +28,8 @@ def generate(sig, cov, covTransformed, tcgaMean, tcgaStd, numMixtures, outputPat
     :numMixtures: how many mixtures to generate
 
     :outputPath: where to save the generated data
+
+    :scaleFactor: how much to scale the covariance matrix by
     """
 
     gen = []
@@ -62,14 +65,14 @@ def generate(sig, cov, covTransformed, tcgaMean, tcgaStd, numMixtures, outputPat
             "log2 transformed raw generated data"
         ))
 
-        saveMatrix('%s/generated_raw_mixture_%d.csv' %(outputPath, i+1), generatedData)
-        saveMatrix('%s/generated_log2_mixture_%d.csv' %(outputPath, i+1), generatedDataTransformed)
+        saveMatrix('%s/generated_raw_mixture_%d_%s.csv' %(outputPath, i+1, formatSf(scaleFactor)), generatedData)
+        saveMatrix('%s/generated_log2_mixture_%d_%s.csv' %(outputPath, i+1, formatSf(scaleFactor)), generatedDataTransformed)
         
         # saveMatrix('%s/generated_zTransform_mixture_%d.csv' %(outputPath, i+1), generatedDataZ)
         # saveMatrix('%s/generated_zTransform_log2_mixture_%d.csv' %(outputPath, i+1), generatedDataZTransformed)
         
-        saveMatrix('%s/mu_mixture_%d.csv' %(outputPath, i+1), weightedMu)
-        saveMatrix('%s/weights_mixture_%d.csv' %(outputPath, i+1), randomWeights)
+        saveMatrix('%s/mu_mixture_%d_%s.csv' %(outputPath, i+1, formatSf(scaleFactor)), weightedMu)
+        saveMatrix('%s/weights_mixture_%d_%s.csv' %(outputPath, i+1, formatSf(scaleFactor)), randomWeights)
         
         gen.append({
             "raw": generatedData,
@@ -112,9 +115,9 @@ def generateWithScaling(patientDataPath, signaturePath, mappingFilePath, outputP
     errors = []
 
     for sf in scaleFactors:
-        gen = generate(signatureMatrix, sf * patientDataCov, None, None, None, 4, outputPath)
+        gen = generate(signatureMatrix, sf * patientDataCov, None, None, None, 4, outputPath, sf)
 
-        meanAbsError = runNmf(
+        nmfError = runNmf(
             signatureMatrix,
             np.array([g["raw_log2"].T for g in gen]),
             np.array([g["weights"] for g in gen]),
@@ -123,9 +126,18 @@ def generateWithScaling(patientDataPath, signaturePath, mappingFilePath, outputP
             formatSf(sf),
         )
 
-        plotDataGeneration(gen, sf, outputPath)
+        clsErrors = runCls(
+            signatureMatrix,
+            np.array([g["raw_log2"].T for g in gen]),
+            np.array([g["weights"] for g in gen]),
+            outputPath,
+            4,
+            formatSf(sf),
+        )
 
-        errors.append([sf, meanAbsError])
+        #plotDataGeneration(gen, sf, outputPath)
+
+        errors.append([sf, nmfError, clsErrors])
 
     saveMatrix("%s/scaling-results.csv" %outputPath, np.array(errors))
 
@@ -220,7 +232,7 @@ def main(args):
 
     # try different scaling factors on the covariance matrix to examine the effect of adding noise
     # on the data generation
-    scaleFactors = [round(sf, 2) for sf in np.arange(0.1, 1.1, 0.1)]
+    scaleFactors = [round(sf, 2) for sf in np.arange(0, 1.1, 0.1)]
 
     generateWithScaling(patientDataPath, signaturePath, mappingFilePath, outputPath, scaleFactors)
 
