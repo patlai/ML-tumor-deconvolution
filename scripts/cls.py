@@ -24,9 +24,6 @@ def runMix(sigMatrix, mixture):
         bounds=[(0, np.inf) for i in range(S.shape[0])]
     )
 
-    reg = linear_model.LinearRegression()
-    reg.fit(mixture, )
-
     return res.x
 
 def runCls(sigMatrix, mixtures, expected, outputPath, numMixes, outputPrefix = ""):
@@ -45,3 +42,5 @@ def runCls(sigMatrix, mixtures, expected, outputPath, numMixes, outputPrefix = "
 
     meanAbsoluteError = mean_absolute_error(expected, results)
     print("Mean Absolute Error: %.3f" %meanAbsoluteError)
+
+    return meanAbsoluteError
