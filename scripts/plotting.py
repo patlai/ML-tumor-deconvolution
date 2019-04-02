@@ -40,8 +40,8 @@ def multiHistogram(arraysToPlot, n, title, outputPath, labels=None):
     minimum = min([min(x) for x in arraysToPlot]) - 1
     maximum = max([max(x) for x in arraysToPlot]) + 1
 
-    print(minimum)
-    print(maximum)
+    #print(minimum)
+    #print(maximum)
 
     plt.xlim(minimum, maximum)
     plt.legend()
@@ -54,8 +54,8 @@ def generatePlots(actual, expected, prefix, numMixes, suffix = ""):
     for each mixture and all mixtures together
     """
 
-    print("actual: ", actual.shape)
-    print("expected: ", expected.shape)
+    #print("actual: ", actual.shape)
+    #print("expected: ", expected.shape)
 
     # make sure the dimensions are (num mixes x cell types per mix)
     if actual.shape[0] != numMixes:
@@ -70,9 +70,6 @@ def generatePlots(actual, expected, prefix, numMixes, suffix = ""):
     # iterate through the mixtures
     for k in range(0, numMixes):
         compare = []
-        print("hello world")
-        print(actual.shape)
-        print(expected.shape)
         
         # iterate over each cell fraction in the mixture: mixture k, cell type j
         for j in range (0, actual[k].shape[0]):
