@@ -38,6 +38,7 @@ def generate(sig, cov, covTransformed, tcgaMean, tcgaStd, numMixtures, outputPat
         # get mu from the epic signature by generating random weights and multiplying them with the sig
         # generate a random vector equal to the number of cell types in the epic signature (cols)
         # make sure the weights sum to one
+        randomWeights = []
         if (weights == None):
             randomWeights = np.random.rand(sig.shape[1])
             randomWeights /= randomWeights.sum(axis = 0)
@@ -45,6 +46,9 @@ def generate(sig, cov, covTransformed, tcgaMean, tcgaStd, numMixtures, outputPat
             randomWeights = weights
 
         weightedMu = mu if mu != None else np.sum(randomWeights * sig, axis = 1)
+
+        print("using weights:")
+        print(weightedMu)
 
         # use the weighted mu from epic and the cov matrix from tcga to generate a multivariate distribution
         # 1 sample of the generated data should correspond to the (mixed) gene expression of 1 patient
