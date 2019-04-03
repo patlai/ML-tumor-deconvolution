@@ -39,13 +39,13 @@ def generate(sig, cov, covTransformed, tcgaMean, tcgaStd, numMixtures, outputPat
         # generate a random vector equal to the number of cell types in the epic signature (cols)
         # make sure the weights sum to one
         randomWeights = []
-        if (weights == None):
+        if (weights is None):
             randomWeights = np.random.rand(sig.shape[1])
             randomWeights /= randomWeights.sum(axis = 0)
         else:
             randomWeights = weights
 
-        weightedMu = mu if mu != None else np.sum(randomWeights * sig, axis = 1)
+        weightedMu = mu if mu is not None else np.sum(randomWeights * sig, axis = 1)
 
         print("using weights:")
         print(weightedMu)
