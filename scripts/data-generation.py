@@ -48,7 +48,7 @@ def generate(sig, cov, covTransformed, tcgaMean, tcgaStd, numMixtures, outputPat
         weightedMu = mu if mu is not None else np.sum(randomWeights * sig, axis = 1)
 
         print("using weights:")
-        print(weightedMu)
+        print(randomWeights)
 
         # use the weighted mu from epic and the cov matrix from tcga to generate a multivariate distribution
         # 1 sample of the generated data should correspond to the (mixed) gene expression of 1 patient
