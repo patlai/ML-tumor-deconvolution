@@ -120,7 +120,7 @@ def generateWithScaling(patientDataPath, signaturePath, mappingFilePath, outputP
 
     patientDataMatrix, signatureMatrix, patientDataCov = getMapping(patientDataPath, signaturePath, mappingFilePath, outputPath)
 
-    print("truncated signature matrix shape: " + signatureMatrix.shape)
+    print("truncated signature matrix shape: " + str(signatureMatrix.shape))
     saveMatrix("%s/truncated-signature.csv" %outputPath, signatureMatrix)
 
     errors = []
