@@ -28,7 +28,7 @@ def minMaxPreProcess(sigMatrix, mixMatrix):
     return X
 
 
-def getOverlappingGenes(patientDataPath, sigMatrixPath, mappingFilePath):
+def getOverlappingGenes(patientDataPath, sigMatrixPath, mappingFilePath, outputPath):
     """
     Gets all the overlapping genes between a patient data matrix and a signature matrix and truncates
     both matrices according to the overlap
@@ -68,6 +68,9 @@ def getOverlappingGenes(patientDataPath, sigMatrixPath, mappingFilePath):
 
     patientRowsToKeep = set([name for name in patientDataDf.index if name in ensNames])
     sigRowsToKeep = set([mapping[name] for name in patientRowsToKeep])
+
+    genesToKeep = np.array(list(sigRowsToKeep))
+    np.savetxt("%s/genesToKeep.txt" %outputPath, genesToKeep, delimiter=",", fmt="%s")
 
     # go through the patient data and keep only the rows/genes that are still in the signature
     patientDataDf = patientDataDf[patientDataDf.index.map(lambda x: x in patientRowsToKeep)]

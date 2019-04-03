@@ -93,13 +93,13 @@ def formatSf(sf):
     return str(sf).replace('.', '')
 
 
-def getMapping(patientDataPath, signaturePath, mappingFilePath):
+def getMapping(patientDataPath, signaturePath, mappingFilePath, outputPath):
     """
     Gets the overlapping genes between the patient data and cell signature and
     returns both filtered matrices and the covariance of the patient data
     """
 
-    preProcessed = getOverlappingGenes(patientDataPath, signaturePath, mappingFilePath)
+    preProcessed = getOverlappingGenes(patientDataPath, signaturePath, mappingFilePath, outputPath)
 
     patientDataMatrix = preProcessed["patientData"]
     signatureMatrix = preProcessed["signature"]
@@ -114,7 +114,10 @@ def generateWithScaling(patientDataPath, signaturePath, mappingFilePath, outputP
     Calculates the gene overlap, covariance matrix and then generates the data
     """
 
-    patientDataMatrix, signatureMatrix, patientDataCov = getMapping(patientDataPath, signaturePath, mappingFilePath)
+    patientDataMatrix, signatureMatrix, patientDataCov = getMapping(patientDataPath, signaturePath, mappingFilePath, outputPath)
+
+    print("truncated signature matrix shape: " + signatureMatrix.shape)
+    saveMatrix("%s/truncated-signature.csv" %outputPath, signatureMatrix)
 
     errors = []
 
