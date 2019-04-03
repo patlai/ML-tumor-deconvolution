@@ -10,7 +10,7 @@ from plotting import multiHistogram
 from nmf import runNmf
 from cls import runCls
 
-def generate(sig, cov, covTransformed, tcgaMean, tcgaStd, numMixtures, outputPath, scaleFactor):
+def generate(sig, cov, covTransformed, tcgaMean, tcgaStd, numMixtures, outputPath, scaleFactor, mu = None, weights = None):
     """
     generates cell mixtures data using a multivariate-normal distribution and randomly generated weights for the cell types
     .
@@ -38,9 +38,13 @@ def generate(sig, cov, covTransformed, tcgaMean, tcgaStd, numMixtures, outputPat
         # get mu from the epic signature by generating random weights and multiplying them with the sig
         # generate a random vector equal to the number of cell types in the epic signature (cols)
         # make sure the weights sum to one
-        randomWeights = np.random.rand(sig.shape[1])
-        randomWeights /= randomWeights.sum(axis = 0)
-        weightedMu = np.sum(randomWeights * sig, axis = 1)
+        if (weights == None):
+            randomWeights = np.random.rand(sig.shape[1])
+            randomWeights /= randomWeights.sum(axis = 0)
+        else:
+            randomWeights = weights
+
+        weightedMu = mu if mu != None else np.sum(randomWeights * sig, axis = 1)
 
         # use the weighted mu from epic and the cov matrix from tcga to generate a multivariate distribution
         # 1 sample of the generated data should correspond to the (mixed) gene expression of 1 patient
@@ -114,8 +118,13 @@ def generateWithScaling(patientDataPath, signaturePath, mappingFilePath, outputP
 
     errors = []
 
+    randomWeights = np.ones(signatureMatrix.shape[1]) #np.random.rand(signatureMatrix.shape[1])
+    randomWeights /= randomWeights.sum(axis = 0)
+    print(randomWeights)
+    weightedMu = np.sum(randomWeights * signatureMatrix, axis = 1)
+
     for sf in scaleFactors:
-        gen = generate(signatureMatrix, sf * patientDataCov, None, None, None, 4, outputPath, sf)
+        gen = generate(signatureMatrix, sf * patientDataCov, None, None, None, 4, outputPath, sf, weightedMu, randomWeights)
 
         nmfError = runNmf(
             signatureMatrix,
