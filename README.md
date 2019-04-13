@@ -18,13 +18,25 @@ python3 -m pip install -r requirements.txt
 ```
 
 ## Running
-The current running configuration is to generate data using randomized multivariate normal distributions with multiple with covariance matrix scaling factors from 0 to 1 in increments of 0.1 and run NMF and CLS for deconvolution on each generated instance. To do this, use:
+To run either NMF or CLS for deconvolution, use the following shell command:
+```
+python3 scripts/run.py \
+[mixture files prefix] \
+[cell signature file] \
+[known weights file] \
+[output path] \
+[number of mixtures] \
+[method name: either 'NMF' or 'CLS']
+```
+The mixtures should all be .csv files saved as a (number of genes) x 1 matrix and should all have a common prefix in the name (ex: dataset_mixture_i.csv) where i is the mixture number starting at i=1. The signature matrix should be a .csv file with a (# genes x # cell types) matrix and the output path should be a folder that currently exists.
+
+The current running configuration for the data generation script is to generate data using randomized multivariate normal distributions with multiple with covariance matrix scaling factors from 0 to 1 in increments of 0.1 and run NMF and CLS for deconvolution on each generated instance. To do this, use:
 ```
 python3 scripts/data-generation.py \
 [patient data file] \
 [cell signature file] \
 [gene mapping file] \
-[output path] \
+[output path]
 ```
 make sure the output path is a directory that currently exists and also contains a subfolder called `plots`
 
