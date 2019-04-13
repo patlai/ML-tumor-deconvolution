@@ -125,6 +125,7 @@ def generateWithScaling(patientDataPath, signaturePath, mappingFilePath, outputP
 
     errors = []
 
+    # make the weights uniform to isolate the effect of the covariance scaling factor on the overall error
     randomWeights = np.ones(signatureMatrix.shape[1]) #np.random.rand(signatureMatrix.shape[1])
     randomWeights /= randomWeights.sum(axis = 0)
     print(randomWeights)
