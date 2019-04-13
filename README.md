@@ -18,10 +18,17 @@ python3 -m pip install -r requirements.txt
 ```
 
 ## Running
-To generate new data:
+The current running configuration is to generate data using randomized multivariate normal distributions with multiple with covariance matrix scaling factors from 0 to 1 in increments of 0.1 and run NMF and CLS for deconvolution on each generated instance. To do this, use:
 ```
-python3 scripts/data-generation.py [patient data file] [cell signature file] [gene mapping file] [output path]
+python3 scripts/data-generation.py \
+[patient data file] \
+[cell signature file] \
+[gene mapping file] \
+[output path] \
 ```
+make sure the output path is a directory that currently exists and also contains a subfolder called `plots`
+
+The output will be the estimated cell fractions for each scaling factor and each method (total of 20 files) as a matrix in .csv format. Additionally, the true weights will also be provided.
 
 ## Authors
 Patrick Lai, Yu-Yueh Liu, Keven Liu, Ben Landry
